@@ -971,10 +971,12 @@
       <!-- /ko -->
       <div class="control-group">
         <div class="controls">
-          <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.enclosure.use_board_pin_number"> {{ _('Use Board Pin #') }}
-          </label>
-          <span class="help-inline">Use BOARD pin numbers instead of BCM pin numbers</span>
+          <label class="control-label">{{ _('Pin Number System') }}</label>
+          <select data-bind="value: settingsViewModel.settings.plugins.enclosure.pin_number_system">
+            <option value="board">BOARD</option>
+            <option value="bcm">BCM</option>
+            <option value="sunxi">SUNXI</option>
+          </select>
         </div>
       </div>
       <div class="control-group">

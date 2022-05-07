@@ -3,9 +3,9 @@ from __future__ import absolute_import
 from octoprint.events import eventManager, Events
 from octoprint.util import RepeatedTimer
 from subprocess import Popen, PIPE
-from .ledstrip import LEDStrip
+#from .ledstrip import LEDStrip
 import octoprint.plugin
-import RPi.GPIO as GPIO
+import OPi.GPIO as GPIO
 from flask import jsonify, request, make_response, Response
 from octoprint.server.util.flask import restricted_access
 from werkzeug.exceptions import BadRequest
@@ -22,7 +22,7 @@ import threading
 import json
 import copy
 from smbus2 import SMBus
-from .getPiTemp import PiTemp
+#from .getPiTemp import PiTemp
 import struct
 
 
@@ -110,7 +110,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             val = int(value)
             return val
         except:
-            return 0
+            return value
 
     @staticmethod
     def is_hour(value):
@@ -175,46 +175,52 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
         self._logger.info("rpi_outputs: %s", self.rpi_outputs)
         self._logger.info("rpi_inputs: %s", self.rpi_inputs)
         self._logger.info("#########        End Current Settings        #########")
-        if current >= 4 and target == 10:
-            self._logger.warn("######### migrating settings to v10 #########")
-            old_outputs = self._settings.get(["rpi_outputs"])
-            old_inputs = self._settings.get(["rpi_inputs"])
-            for rpi_output in old_outputs:
-                if 'shutdown_on_failed' not in rpi_output:
-                    rpi_output['shutdown_on_failed'] = False
-                if 'shell_script' not in rpi_output:
-                    rpi_output['shell_script'] = ""
-                if 'gpio_i2c_enabled' not in rpi_output:
-                    rpi_output['gpio_i2c_enabled'] = False
-                if 'gpio_i2c_bus' not in rpi_output:
-                    rpi_output['gpio_i2c_bus'] = 1
-                if 'gpio_i2c_address' not in rpi_output:
-                    rpi_output['gpio_i2c_address'] = 1
-                if 'gpio_i2c_register' not in rpi_output:
-                    rpi_output['gpio_i2c_register'] = 1
-                if 'gpio_i2c_data_on' not in rpi_output:
-                    rpi_output['gpio_i2c_data_on'] = 1
-                if 'gpio_i2c_data_off' not in rpi_output:
-                    rpi_output['gpio_i2c_data_off'] = 0
-                if 'gpio_i2c_register_status' not in rpi_output:
-                    rpi_output['gpio_i2c_register_status'] = 1
-                if 'shutdown_on_error' not in rpi_output:
-                        rpi_output['shutdown_on_error'] = False
-            self._settings.set(["rpi_outputs"], old_outputs)
+        if current:
+            if current >= 4 and target == 10:
+                self._logger.warn("######### migrating settings to v10 #########")
+                old_outputs = self._settings.get(["rpi_outputs"])
+                old_inputs = self._settings.get(["rpi_inputs"])
+                for rpi_output in old_outputs:
+                    if 'shutdown_on_failed' not in rpi_output:
+                        rpi_output['shutdown_on_failed'] = False
+                    if 'shell_script' not in rpi_output:
+                        rpi_output['shell_script'] = ""
+                    if 'gpio_i2c_enabled' not in rpi_output:
+                        rpi_output['gpio_i2c_enabled'] = False
+                    if 'gpio_i2c_bus' not in rpi_output:
+                        rpi_output['gpio_i2c_bus'] = 1
+                    if 'gpio_i2c_address' not in rpi_output:
+                        rpi_output['gpio_i2c_address'] = 1
+                    if 'gpio_i2c_register' not in rpi_output:
+                        rpi_output['gpio_i2c_register'] = 1
+                    if 'gpio_i2c_data_on' not in rpi_output:
+                        rpi_output['gpio_i2c_data_on'] = 1
+                    if 'gpio_i2c_data_off' not in rpi_output:
+                        rpi_output['gpio_i2c_data_off'] = 0
+                    if 'gpio_i2c_register_status' not in rpi_output:
+                        rpi_output['gpio_i2c_register_status'] = 1
+                    if 'shutdown_on_error' not in rpi_output:
+                            rpi_output['shutdown_on_error'] = False
+                self._settings.set(["rpi_outputs"], old_outputs)
 
-            old_inputs = self._settings.get(["rpi_inputs"])
-            for rpi_input in old_inputs:
-                if 'temp_i2c_bus' not in rpi_input:
-                    rpi_input['temp_i2c_bus'] = 1
-                if 'temp_i2c_address' not in rpi_input:
-                    rpi_input['temp_i2c_address'] = 1
-                if 'temp_i2c_register' not in rpi_input:
-                    rpi_input['temp_i2c_register'] = 1
-                if 'show_graph_temp' not in rpi_input:
-                    rpi_input['show_graph_temp'] = False
-                if 'show_graph_humidity' not in rpi_input:
-                    rpi_input['show_graph_humidity'] = False
-            self._settings.set(["rpi_inputs"], old_inputs)
+                old_inputs = self._settings.get(["rpi_inputs"])
+                for rpi_input in old_inputs:
+                    if 'temp_i2c_bus' not in rpi_input:
+                        rpi_input['temp_i2c_bus'] = 1
+                    if 'temp_i2c_address' not in rpi_input:
+                        rpi_input['temp_i2c_address'] = 1
+                    if 'temp_i2c_register' not in rpi_input:
+                        rpi_input['temp_i2c_register'] = 1
+                    if 'show_graph_temp' not in rpi_input:
+                        rpi_input['show_graph_temp'] = False
+                    if 'show_graph_humidity' not in rpi_input:
+                        rpi_input['show_graph_humidity'] = False
+                self._settings.set(["rpi_inputs"], old_inputs)
+            else:
+                self._logger.warn("######### settings not compatible #########")
+                self._settings.set(["rpi_outputs"], [])
+                self._settings.set(["rpi_inputs"], [])
+                self.rpi_inputs = self._settings.get(["rpi_inputs"])
         else:
             self._logger.warn("######### settings not compatible #########")
             self._settings.set(["rpi_outputs"], [])
@@ -1497,7 +1503,12 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
     def setup_gpio(self):
         try:
             current_mode = GPIO.getmode()
-            set_mode = GPIO.BOARD if self._settings.get(["use_board_pin_number"]) else GPIO.BCM
+            if self._settings.get(["pin_number_system"])=="board":
+                set_mode = GPIO.BOARD
+            elif self._settings.get(["pin_number_system"])=="bcm":
+                set_mode = GPIO.BCM
+            elif self._settings.get(["pin_number_system"])=="sunxi":
+                set_mode = GPIO.SUNXI
             if current_mode is None:
                 outputs = list(filter(
                     lambda item: (item['output_type'] == 'regular' or item['output_type'] == 'pwm' or item[
@@ -1512,8 +1523,10 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     self._logger.info("Setting GPIO mode to %s", tempstr)
             elif current_mode != set_mode:
                 GPIO.setmode(current_mode)
-                tempstr = "BOARD" if current_mode == GPIO.BOARD else "BCM"
-                self._settings.set(["use_board_pin_number"], True if current_mode == GPIO.BOARD else False)
+                if current_mode == GPIO.BOARD:  tempstr = "board"
+                elif current_mode == GPIO.BCM:  tempstr = "bcm"
+                elif current_mode == GPIO.SUNXI:  tempstr = "sunxi"
+                self._settings.set(["pin_number_system"], tempstr)
                 warn_msg = "GPIO mode was configured before, GPIO mode will be forced to use: " + tempstr + " as pin numbers. Please update GPIO accordingly!"
                 self._logger.info(warn_msg)
                 self._plugin_manager.send_plugin_message(self._identifier,
@@ -2205,7 +2218,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
         return dict(rpi_outputs=[], rpi_inputs=[],
             filament_sensor_gcode="G91  ;Set Relative Mode \n" + "G1 E-5.000000 F500 ;Retract 5mm\n" + "G1 Z15 F300         ;move Z up 15mm\n" + "G90            ;Set Absolute Mode\n " + "G1 X20 Y20 F9000      ;Move to hold position\n" + "G91            ;Set Relative Mode\n" + "G1 E-40 F500      ;Retract 40mm\n" + "M0            ;Idle Hold\n" + "G90            ;Set Absolute Mode\n" + "G1 F5000         ;Set speed limits\n" + "G28 X0 Y0         ;Home X Y\n" + "M82            ;Set extruder to Absolute Mode\n" + "G92 E0         ;Set Extruder to 0",
             use_sudo=True, neopixel_dma=10, debug=False, gcode_control=False, debug_temperature_log=False,
-            use_board_pin_number=False, notification_provider="disabled", notification_api_key="",
+            pin_number_system="sunxi", notification_provider="disabled", notification_api_key="",
             notification_event_name="printer_event", notifications=[{
                                                                         'printFinish'      : True,
                                                                         'filamentChange'   : True,
@@ -2227,7 +2240,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
 
     # ~~ Softwareupdate hook
     def get_update_information(self):
-        return dict(enclosure=dict(displayName="Enclosure Plugin", displayVersion=self._plugin_version,
+        return dict(enclosure=dict(displayName="Enclosure Plugin OrangePi Fork", displayVersion=self._plugin_version,
             # version check: github repository
             type="github_release", user="vitormhenrique", repo="OctoPrint-Enclosure", current=self._plugin_version,
             # update method: pip

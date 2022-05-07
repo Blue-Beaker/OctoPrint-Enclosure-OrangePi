@@ -1,3 +1,8 @@
+# Octoprint Enclosure Fork For OrangePi
+# THIS FORK IS WORK IN PROGRESS, IT DOESN'T WORK FOR NOW
+At least it doesn't work on my orangepi zero
+
+
 Find the plugin useful? Buy me a coffee
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/VitorHenrique/2)
 

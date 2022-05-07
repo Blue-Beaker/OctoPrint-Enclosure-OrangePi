@@ -11,7 +11,7 @@ plugin_package = "octoprint_enclosure"
 
 # The plugin's human readable name. Can be overwritten within OctoPrint's internal data via __plugin_name__ in the
 # plugin module
-plugin_name = "OctoPrint-Enclosure"
+plugin_name = "OctoPrint-Enclosure-OrangePi"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
 plugin_version = "4.13.2"
@@ -33,7 +33,7 @@ plugin_url = "https://github.com/vitormhenrique/OctoPrint-Enclosure"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ["RPi.GPIO>=0.6.5", "requests>=2.7", "smbus2>=0.3.0", "gpiozero==1.6.2", "RPi.bme280", "bme680"]
+plugin_requires = ["OPi.GPIO", "requests>=2.7", "smbus2>=0.3.0", "gpiozero==1.6.2", "RPi.bme280", "bme680"]
 
 additional_setup_parameters = {}
 
